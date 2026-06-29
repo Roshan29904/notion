@@ -56,13 +56,54 @@ exports.sendOTP = async (req, res) => {
     catch (error) {
         console.log(error);
         return res.status(500).json({
-            success:false,
-            message:error.message,
+            success: false,
+            message: error.message,
         })
     }
 }
 // sing up
+exports.signUp = async (req, res) => {
 
+    // data fecth from request ki body
+    const {
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+        accountType,
+        contactNumber,
+        otp
+    } = req.body;
+
+    // validate krlo
+    if (!firstName || !lastName || !email || !password || !confirmPassword || !otp) {
+        return res.status(403).json({
+            success: false,
+            message: "All fields are required"
+        })
+    }
+
+    // 2 password match karlo
+    if (password !== confirmPassword) {
+        return res.status(400).json({
+            success: false,
+            message: "Password and ConfirmPassword does not match, please try again"
+        });
+
+    }
+
+    // check user already exist or not
+    
+    //find most recent OTP stored for the user
+    //validate otp
+
+    // hash password
+    //  entry create in DB
+
+    // return res
+
+}
 
 
 // log in
