@@ -42,7 +42,23 @@ exports.auth = async (req, res, next) => {
 }
 
 // is student
-
+exports.isStudent = async (req, res, next) => {
+    try{
+        if (req.user.accounttype !== "Student"){
+            return res.status(401).json({
+                success:false,
+                message:"This is a proctected route for Students only",
+            });
+        };
+        next();
+    }
+    catch(error){
+        return res.status(500).json({
+            success:false,
+            message:"User role cannot be verified, please try again"
+        })
+    }
+}
 
 // is instructor
 
