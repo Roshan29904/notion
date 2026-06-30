@@ -144,7 +144,7 @@ exports.signUp = async (req, res) => {
             email,
             contactNumber,
             password: hashedPassword,
-            accountType,
+            accounttype,
             additionalDetails: profileDetails._id,
             image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstname} ${lastName}`,
         })
@@ -192,7 +192,7 @@ exports.login = async (req, res) => {
             const playload = {
                 email: user.email,
                 id: user._id,
-                role: user.role,
+                accounttype: user.accounttype,
             }
             const token = jwt.sign(playload, process.env.JWT_SECRET, {
                 expiresIn:"2h",
@@ -230,3 +230,17 @@ exports.login = async (req, res) => {
 }
 
 //  change password
+exports.changePassword = async (req, res) => {
+    try{
+        //get data from req body
+        //get oldPassword, newPassword, confirmNewPassword
+        //validation
+
+        //update password in DB
+        //send mail - password updated
+        //return respone
+    }
+    catch(error){
+
+    }
+}
