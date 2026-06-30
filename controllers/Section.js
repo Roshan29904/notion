@@ -1,5 +1,6 @@
 const Section = require("../models/Section");
 const Course = require("../models/Course");
+const { response } = require("express");
 
 exports.createSection = async (req, res) => {
     try {
@@ -67,6 +68,31 @@ exports.updateSection = async (req, res) => {
         })
     }
     catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Unable to update Section, please try again",
+            error: error.message,
+        });
+    }
+}
+
+
+
+//delete section handler function
+
+exports.deleteSection = async (req, res) => {
+    try{
+        //get id -- assuming that we are sending id in params 
+        const {sectionId} = req.params 
+        //use findByoneDelete
+        await Section.findByIdAndDelete(sectionId);
+        //return response
+        return res.status(200).json({
+            success: true,
+            message: "section deleted successfully",
+        })
+    }
+    catch(error){
         return res.status(500).json({
             success: false,
             message: "Unable to update Section, please try again",
