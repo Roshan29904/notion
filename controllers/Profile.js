@@ -32,13 +32,48 @@ exports.updateProfile = async (req, res) => {
             success: true,
             message: "profile Updated successfully", 
             profileDetails,
-        })
+        });
     }
     catch(error){
         return res.status(500).json({
             success: false,
             error: error.message,
-            
+        });
+    }
+};
+
+
+
+//delete Account
+
+exports.deleteAccount = async (req, res) => {
+    try{
+        //get id 
+        const id = req.user.id;
+        //validation
+        const userDetails = await User.findById(id);
+        if(!userDetails) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        //delete profile
+        await Profile.findByIdAndDelete({_id:userDetails.additionalDetails});
+        // unenroll user from all enrolled courses
+        //delete user
+        await User.findByIdAndDelete({_id:id});
+        //return res
+        return res.status(200).json({
+            success: true,
+            message: "User Deleted successfully",
         })
+    }
+    catch(error){
+        return res.status(500).json({
+            success: false,
+            message: "User cannot be deleted"
+        });
     }
 }
