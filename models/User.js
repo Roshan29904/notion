@@ -3,48 +3,65 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
     firstName: {
-        type:String,
-        required:true,
-        trim:true,
+        type: String,
+        required: true,
+        trim: true,
     },
-    lastName:{
-        type:stringify,
-        required:true,
-        trim:true,    
+    lastName: {
+        type: stringify,
+        required: true,
+        trim: true,
     },
-    email:{
-        type:String,
-        required:true,
-        trim:true,
+    email: {
+        type: String,
+        required: true,
+        trim: true,
     },
-    password:{
-        type:String,
-        require:true,
+    password: {
+        type: String,
+        require: true,
     },
-    accounttype:{
-        type:String,
-        enum:["Admin","Student","Instructor"],
-        required:true,
+    accounttype: {
+        type: String,
+        enum: ["Admin", "Student", "Instructor"],
+        required: true,
     },
-    additionalDetails:{
-        type:mongoose.Schema.Types.ObjectId,
-        require:true,
-        ref:"Profile",
+    active: {
+        type: Boolean,
+        default: true,
     },
-    courses:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Course",
+    approved: {
+        type: Boolean,
+        default: true,
     },
-    image:{
-        type:String,
-        required:true,
+    additionalDetails: {
+        type: mongoose.Schema.Types.ObjectId,
+        require: true,
+        ref: "Profile",
+    },
+    courses: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+    },
+    image: {
+        type: String,
+        required: true,
+    },
+    token: {
+        type: String,
+    },
+    resetPasswordExpires: {
+        type: Date,
     },
     courseProgress: [
         {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"CourseProgress",
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "CourseProgress",
         }
     ]
-})
+},
+    //Add timestamps for when the document is created and last modified
+    { timestamps: true }
+)
 
-module.exports = mongoose.model("User",userSchema)
+module.exports = mongoose.model("User", userSchema)
