@@ -14,10 +14,8 @@ const SectionSchema = new mongoose.Schema({
         ref:"SubSection",
     }
     ],
-    videoUrl:{
-        type:String,
-    },
 
+    
 });
 
 module.exports = mongoose.model("Section", SectionSchema)
