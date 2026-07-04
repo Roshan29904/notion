@@ -6,7 +6,23 @@ const jwt = require("jsonwebtoken");
 const mailSender = require('../utils/mailSender');
 const { passwordUpdated } = require('../mail/templates/passwordUpdate');
 const Profile = require('../models/Profile');
+const crypto = require('crypto'); 
+
 require("dotenv").config();
+
+const normalizeAccountType = (value) => {
+    const normalized = String(value || "").trim().toLowerCase();
+
+    switch (normalized) {
+        case "admin":
+            return "Admin";
+        case "instructor":
+            return "Instructor";
+        case "student":
+        default:
+            return "Student";
+    }
+};
 
 // send otp
 exports.sendOTP = async (req, res) => {
@@ -26,27 +42,26 @@ exports.sendOTP = async (req, res) => {
             })
         }
 
-        // grnerator otp
-        var otp = otpGenerator.generate(6, {
+        // generate otp
+        let otp = otpGenerator.generate(6, {
             upperCaseAlphabets: false,
             lowerCaseAlphabets: false,
             specialChars: false,
         });
         console.log("OTP generated:", otp);
 
-        // check unique otp or not
-        const result = await OTP.findOne({ otp: otp });
-
+        // ensure it is unique for this email
+        let result = await OTP.findOne({ email, otp });
         while (result) {
-            otp = otpGenerator(6, {
+            otp = otpGenerator.generate(6, {
                 upperCaseAlphabets: false,
                 lowerCaseAlphabets: false,
                 specialChars: false,
             });
-            result = await OTP.findOne({ otp: otp });
+            result = await OTP.findOne({ email, otp });
         }
 
-        const otpPayload = { email, otp };
+        const otpPayload = { email, otp: String(otp) };
 
         // create an entry for otp
         const otpBody = await OTP.create(otpPayload);
@@ -108,22 +123,22 @@ exports.signUp = async (req, res) => {
                 message: "User already registered",
             });
         }
-        //find most recent OTP stored for the user
-        const recentOtp = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+
+        // find most recent OTP stored for the user
+        const recentOtp = await OTP.findOne({ email }).sort({ createdAt: -1 });
         console.log(recentOtp);
 
-        //validate otp
-        if (recentOtp.length == 0) {
-            //otp not found
+        // validate otp
+        if (!recentOtp) {
             return res.status(400).json({
                 success: false,
                 message: "OTP not found"
             })
         }
-        else if (otp !== recentOtp.otp) {
-            // invalid OTP
+
+        if (String(otp) !== String(recentOtp.otp)) {
             return res.status(400).json({
-                sucess: false,
+                success: false,
                 message: "Invalid OTP",
             })
         }
@@ -131,9 +146,8 @@ exports.signUp = async (req, res) => {
         // hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        //  entry create in DB
-
-        const profileDetails = await profile.create({
+        // entry create in DB
+        const profileDetails = await Profile.create({
             gender: null,
             dateOfBirth: null,
             about: null,
@@ -146,23 +160,26 @@ exports.signUp = async (req, res) => {
             email,
             contactNumber,
             password: hashedPassword,
-            accounttype,
+            accounttype: normalizeAccountType(accountType),
             additionalDetails: profileDetails._id,
-            image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstname} ${lastName}`,
+            image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
         })
+
+        await OTP.deleteMany({ email });
+
         // return res
         return res.status(200).json({
-            success:true,
+            success: true,
             message: "User registered Successfully",
-            User,
+            user,
         });
 
     }
     catch (error) {
         console.log(error);
         return res.status(500).json({
-            success:false,
-            message:"User cannot be registered. Please try again "
+            success: false,
+            message: "User cannot be registered. Please try again "
         })
     }
 }

@@ -1,5 +1,5 @@
 const Course = require("../models/Course");
-const Tag = require("../models/Category");
+const Category = require("../models/Category");
 const User = require("../models/User")
 
 require("dotenv").config();
@@ -9,9 +9,13 @@ const { uploadImageToCloudinary } = require("../utils/imageUploadee")
 // create course handler function
 exports.createCourse = async (req, res) => {
     try {
-        //featch data
-        const { courseName, courseDescription, whatYouWillLearn, price, tag, category } = req.body;
 
+        //Get user Id from request object
+        const userId = req.user.id;
+        
+        //featch data
+        const { courseName, courseDescription, whatYouWillLearn, price, tag, category, instructions } = req.body;
+        let { status } = req.body;
         // get thumbnail
         const thumbnail = req.files.thumbnailImage;
 
@@ -22,11 +26,17 @@ exports.createCourse = async (req, res) => {
                 message: "All fields are required",
             })
         }
+        if (!status || status === undefined) {
+            status = "Draft";
+        }
 
-        //check0 for instructor
-        const userId = req.body.id;
-        const instructorDetails = await User.findById(userId);
-        console.log("Instructor Details:", instructorDetails);
+        
+        
+         const instructorDetails = await User.findById(userId, {
+            accountType: "Instructor",
+        });
+        console.log("Instructor Details: " , instructorDetails);
+
 
         if (!instructorDetails) {
             return res.status(404).json({
@@ -36,11 +46,11 @@ exports.createCourse = async (req, res) => {
         }
 
         //check given tag is valid or not
-        const tagDetails = await Tag.findById(tag);
-        if (!tagDetails) {
+        const categoryDetails = await Category.findById(category);
+        if (!categoryDetails) {
             return res.status(404).json({
                 success: false,
-                message: "Tag Details not found",
+                message: "category Details not found",
             });
         }
 
@@ -57,6 +67,8 @@ exports.createCourse = async (req, res) => {
             tag: tag,
             Category: categoryDetails._id,
             thumbnail: thumbnailImage.secure_url,
+            status: status,
+            instructions: instructions,
         })
 
         //add the new course to the user schema of instructor
@@ -70,8 +82,20 @@ exports.createCourse = async (req, res) => {
             { new: true },
         )
 
-        //update the tag ka schema
+        //update the category ka schema
 
+        //Add the new course to the categories
+        await Category.findByIdAndUpdate(
+            { _id: category },
+            {
+                $push: {
+                    course: newCourse._id,
+                },
+            },
+            { new: true }
+        );
+       
+        
         //return response
         return res.status(200).json({
             success: true,
@@ -92,9 +116,10 @@ exports.createCourse = async (req, res) => {
 
 
 
+
 // get  all course handler function
 
-exports.showAllCourses = async (req, res) => {
+exports.getAllCourses = async (req, res) => {
     try {
         const allCourses = await Course.find({}, {
             courseName: true,

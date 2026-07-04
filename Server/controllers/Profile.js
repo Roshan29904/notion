@@ -1,6 +1,6 @@
 const Profile = require("../models/Profile")
 const User = require("../models/User");
-const { uploadImageToCloudinary } = require('../utils/imageUploader');
+const { uploadImageToCloudinary } = require('../utils/imageUploadee');
 
 // update profile as profile is made in middleware
 exports.updateProfile = async (req, res) => {
@@ -51,8 +51,8 @@ exports.deleteAccount = async (req, res) => {
         //get id 
         const id = req.user.id;
         //validation
-        const userDetails = await User.findById(id);
-        if (!userDetails) {
+        const user = await User.findById({_id : id});
+        if (!user) {
             return res.status(404).json({
                 success: false,
                 message: "User not found",
@@ -60,13 +60,13 @@ exports.deleteAccount = async (req, res) => {
         }
 
         //delete profile
-        await Profile.findByIdAndDelete({ _id: userDetails.additionalDetails });
+        await Profile.findByIdAndDelete({ _id: user.additionalDetails });
         // unenroll user from all enrolled courses
         //delete user
         await User.findByIdAndDelete({ _id: id });
         //return res
         return res.status(200).json({
-            success: true,
+            success: true, 
             message: "User Deleted successfully",
         })
     }
@@ -95,6 +95,7 @@ exports.getAllUserDetails = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: 'User Data Fetched Successfully',
+            data: userDetails,
         });
 
     }

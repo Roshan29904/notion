@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
         trim: true,
     },
     lastName: {
-        type: stringify,
+        type: String,
         required: true,
         trim: true,
     },
@@ -39,10 +39,12 @@ const userSchema = new mongoose.Schema({
         require: true,
         ref: "Profile",
     },
-    courses: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
-    },
+    courses: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Course",
+        }
+    ],
     image: {
         type: String,
         required: true,

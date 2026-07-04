@@ -2,6 +2,7 @@
 const User = require("../models/User");
 const mailSender = require("../utils/mailSender");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 
 
@@ -22,7 +23,7 @@ exports.resetPasswordToken = async (req, res) => {
         const token = crypto.randomUUID();
         //update user by adding token and expiration time
         const updatedDetails = await User.findByIdAndUpdate(
-            { email: email },
+            user._id,
             {
                 token: token,
                 resetPasswordExpires: Date.now() + 5 * 60 * 1000,
@@ -31,12 +32,12 @@ exports.resetPasswordToken = async (req, res) => {
         )
 
         //create url 
-        const url = `http:/localhost:3000/update-password/${token}`
+        const url = `http://localhost:3000/update-password/${token}`
         //send mail containing the url
         await mailSender(
             email,
-            "password Rest Link",
-            `Password Rest Link: ${url} `
+            "password Reset Link",
+            `Password Reset Link: ${url} `
         );
         //return response
         return res.json({
@@ -48,7 +49,7 @@ exports.resetPasswordToken = async (req, res) => {
         console.log(error);
         return res.status(500).json({
             success: false,
-            message: "Something went wrong while sending resstting password email"
+            message: "Something went wrong while sending resetting password email"
         })
     }
 }
@@ -90,7 +91,7 @@ exports.resetPassword = async (req, res) => {
 
         //password update
         await User.findByIdAndUpdate(
-            { token: token },
+            userDetails._id,
             { password: hashedPassword },
             { new: true },
         );
@@ -104,7 +105,7 @@ exports.resetPassword = async (req, res) => {
         console.log(error);
         return res.status(500).json({
             success: false,
-            message: "Something went wrong while sending resstting password email"
+            message: "Something went wrong while resetting password"
         })
     }
 

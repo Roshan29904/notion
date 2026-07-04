@@ -1,18 +1,19 @@
 const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema({
-
     courseName: {
-        typeName: String,
+        type: String,
+        required: true,
+        trim: true,
     },
     courseDescription: {
         type: String,
+        required: true,
     },
     instructor: {
-        typre: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
-
     },
     whatYouWillLearn: {
         type: String,
@@ -21,7 +22,7 @@ const courseSchema = new mongoose.Schema({
     },
     courseContent: [
         {
-            type: mongoose.Schema.Types.ObjgectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Section",
             required: true,
         }
@@ -31,7 +32,6 @@ const courseSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "RatingAndReview",
             required: true,
-            trim: true,
         }
     ],
     price: {
@@ -39,9 +39,8 @@ const courseSchema = new mongoose.Schema({
         required: true,
     },
     thumbnail: {
-        types: String,
+        type: String,
         required: true,
-
     },
     tag: {
         type: [String],
@@ -49,7 +48,7 @@ const courseSchema = new mongoose.Schema({
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag",
+        ref: "Category",
     },
     studentsEnrolled: [
         {
@@ -64,14 +63,12 @@ const courseSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ["Draft", "Published"],
+        default: "Draft",
     },
     createdAt: {
         type: Date,
-        Date: Date.now
+        default: Date.now,
     }
-
-
-})
-
+});
 
 module.exports = mongoose.model("Course", courseSchema);

@@ -42,9 +42,9 @@ const {
 //Importing Middlewares
 const {auth, isInstructor, isStudent, isAdmin} = require('../middlewares/auth');
 
-//*************************************************************************************
+
 //                  Course Routes
-//*************************************************************************************
+
 
 //Courses can only be created by instructor
 router.post('/createCourse', auth, isInstructor, createCourse);
@@ -65,17 +65,17 @@ router.get('/getAllCourses', getAllCourses);
 //Get Details for a Specific Courses
 router.post('/getCourseDetails', getCourseDetails);
 
-//***********************************************************************
+
 //              Category Routes (Only By Admin)
-//***********************************************************************
+
 router.post('/createCategory', auth, isAdmin, createCategory);
 router.get('/showAllCategories', showAllCategories);
 router.post('/getCategoryPageDetails', categoryPageDetails);
 
 
-//*****************************************************************************
+
 //              Rating And Review
-//*****************************************************************************
+
 router.get('/createRating', auth, isStudent, createRating);
 router.get('/getAverageRating', getAverageRating);
 router.get('/getReviews', getAllRatingAndReviews);
